@@ -53,8 +53,8 @@ export function VideoInputForm() {
 
         const data = await ffmpeg.readFile('output.mp3')
 
-        const audioFileBlod = new Blob([data], { type: 'audio/mpeg' })
-        const audioFile = new File([audioFileBlod], 'audio.mp3', {
+        const audioFileBlob = new Blob([data], { type: 'audio/mpeg' })
+        const audioFile = new File([audioFileBlob], 'audio.mp3', {
             type: 'audio/mpeg'
         })
 
@@ -82,7 +82,13 @@ export function VideoInputForm() {
 
         const response = await api.post('/videos', data)
 
-        console.log(response.data)
+        const videoId = response.data.video.id
+
+        await api.post(`/videos/${videoId}/transcription`, {
+            prompt,
+        })
+
+        console.log('Finished')
     }
 
     const previewURL = useMemo(() => {
@@ -100,7 +106,7 @@ export function VideoInputForm() {
                 className="relative border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/5"
             >
                 {previewURL ? (
-                    <video src={previewURL} controls={false} className="pointer-events-none absolute inset-0"/>
+                    <video src={previewURL} controls={false} className="pointer-events-none absolute inset-0" />
                 ) : (
                     <>
                         <FileVideo className="w-4 h-4" />
@@ -118,7 +124,7 @@ export function VideoInputForm() {
                 <Textarea
                     ref={promptInputRef}
                     id="transcription_prompt"
-                    className="h-20 leading-relaxed reasize-none"
+                    className="h-20 leading-relaxed resize-none"
                     placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,)"
                 />
             </div>
